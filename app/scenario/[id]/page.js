@@ -8,6 +8,7 @@ import AppHeader from "@/components/AppHeader";
 import { getScenario, deleteScenario } from "@/lib/storage";
 import { calculateAccumulation, calculateWithdrawal, checkGoal } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
+import GrowthChart from "@/components/GrowthChart";
 
 function GoalBanner({ goal, projected }) {
   const result = checkGoal({ targetAmount: goal, projectedAmount: projected });
@@ -33,6 +34,7 @@ function ScenarioDetailContent() {
   const { id } = useParams();
   const router = useRouter();
   const [scenario, setScenario] = useState(undefined);
+  const [showReal, setShowReal] = useState(false);
 
   useEffect(() => {
     // localStorage is only available on the client, after mount.
@@ -106,10 +108,23 @@ function ScenarioDetailContent() {
           </button>
         </div>
 
-        <GoalBanner goal={scenario.targetAmount} projected={accumulation.nominalAtRetirement} />
+        <GoalBanner
+          goal={scenario.targetAmount}
+          projected={showReal ? accumulation.realAtRetirement : accumulation.nominalAtRetirement}
+        />
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h2>
+            <label className="flex items-center gap-2 text-xs text-slate-600">
+              <input
+                type="checkbox"
+                checked={showReal}
+                onChange={(e) => setShowReal(e.target.checked)}
+              />
+              Show inflation-adjusted (real) values
+            </label>
+          </div>
           <dl className="mt-3 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
             <div>
               <dt className="text-slate-500">Nominal at retirement</dt>
@@ -136,6 +151,19 @@ function ScenarioDetailContent() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Growth over time
+          </h2>
+          <div className="mt-3">
+            <GrowthChart
+              rows={accumulation.rows}
+              currentAge={scenario.currentAge}
+              currentSavings={scenario.currentSavings}
+            />
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Accumulation phase
           </h2>
           <div className="mt-3 max-h-80 overflow-y-auto">
@@ -144,8 +172,9 @@ function ScenarioDetailContent() {
                 <tr>
                   <th className="py-1 pr-2">Age</th>
                   <th className="py-1 pr-2">Contributions</th>
+                  <th className="py-1 pr-2">Employer match</th>
                   <th className="py-1 pr-2">Growth</th>
-                  <th className="py-1">End balance</th>
+                  <th className="py-1">End balance{showReal ? " (real)" : ""}</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,8 +182,11 @@ function ScenarioDetailContent() {
                   <tr key={r.year} className="border-t border-slate-100">
                     <td className="py-1 pr-2">{r.age}</td>
                     <td className="py-1 pr-2">{formatCurrency(r.contributions)}</td>
+                    <td className="py-1 pr-2">{formatCurrency(r.employerMatch)}</td>
                     <td className="py-1 pr-2">{formatCurrency(r.growth)}</td>
-                    <td className="py-1 font-medium">{formatCurrency(r.endBalance)}</td>
+                    <td className="py-1 font-medium">
+                      {formatCurrency(showReal ? r.endBalanceReal : r.endBalance)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -172,7 +204,7 @@ function ScenarioDetailContent() {
                 <tr>
                   <th className="py-1 pr-2">Age</th>
                   <th className="py-1 pr-2">Withdrawn</th>
-                  <th className="py-1">End balance</th>
+                  <th className="py-1">End balance{showReal ? " (real)" : ""}</th>
                 </tr>
               </thead>
               <tbody>
@@ -181,7 +213,7 @@ function ScenarioDetailContent() {
                     <td className="py-1 pr-2">{r.age}</td>
                     <td className="py-1 pr-2">{formatCurrency(r.withdrawals)}</td>
                     <td className={`py-1 font-medium ${r.endBalance <= 0 ? "text-red-600" : ""}`}>
-                      {formatCurrency(r.endBalance)}
+                      {formatCurrency(showReal ? r.endBalanceReal : r.endBalance)}
                     </td>
                   </tr>
                 ))}

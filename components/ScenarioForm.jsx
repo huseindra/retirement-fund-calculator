@@ -15,6 +15,9 @@ const DEFAULTS = {
   withdrawalMode: "percentRule",
   monthlyWithdrawal: 3000,
   withdrawalRatePercent: 4,
+  employerMatchRatePercent: 0,
+  employerMatchCapMonthly: 0,
+  contributionStepUpRatePercent: 0,
 };
 
 function NumberField({ label, name, value, onChange, min = 0, step = "any", suffix }) {
@@ -96,6 +99,38 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
           <NumberField label="Monthly contribution" name="monthlyContribution" value={form.monthlyContribution} onChange={set} suffix="$" />
           <NumberField label="Expected annual return" name="annualReturnRatePercent" value={form.annualReturnRatePercent} onChange={set} suffix="%" />
           <NumberField label="Inflation rate" name="inflationRatePercent" value={form.inflationRatePercent} onChange={set} suffix="%" />
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Employer match &amp; raises
+        </h3>
+        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <NumberField
+            label="Employer match"
+            name="employerMatchRatePercent"
+            value={form.employerMatchRatePercent}
+            onChange={set}
+            suffix="% of contribution"
+          />
+          <div>
+            <NumberField
+              label="Employer match cap"
+              name="employerMatchCapMonthly"
+              value={form.employerMatchCapMonthly}
+              onChange={set}
+              suffix="$/mo"
+            />
+            <p className="mt-1 text-xs text-slate-400">0 = no cap</p>
+          </div>
+          <NumberField
+            label="Annual contribution increase"
+            name="contributionStepUpRatePercent"
+            value={form.contributionStepUpRatePercent}
+            onChange={set}
+            suffix="%/yr"
+          />
         </div>
       </section>
 
