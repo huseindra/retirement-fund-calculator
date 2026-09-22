@@ -6,8 +6,14 @@ import { useParams, useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import AppHeader from "@/components/AppHeader";
 import { getScenario, deleteScenario } from "@/lib/storage";
-import { calculateAccumulation, calculateWithdrawal, checkGoal } from "@/lib/calculations";
+import {
+  calculateAccumulation,
+  calculateWithdrawal,
+  checkGoal,
+  runMonteCarloSimulation,
+} from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
+import { downloadScenarioCSV } from "@/lib/export";
 import GrowthChart from "@/components/GrowthChart";
 
 function GoalBanner({ goal, projected }) {
@@ -58,8 +64,20 @@ function ScenarioDetailContent() {
       withdrawalMode: scenario.withdrawalMode,
       monthlyWithdrawal: scenario.monthlyWithdrawal,
       withdrawalRatePercent: scenario.withdrawalRatePercent,
+      taxTreatment: scenario.taxTreatment,
+      taxRatePercent: scenario.taxRatePercent,
+      socialSecurityMonthly: scenario.socialSecurityMonthly,
     });
   }, [scenario, accumulation]);
+
+  const monteCarlo = useMemo(() => {
+    if (!scenario) return null;
+    return runMonteCarloSimulation(scenario);
+  }, [scenario]);
+
+  function handleExportCSV() {
+    downloadScenarioCSV(scenario, accumulation.rows, withdrawal.rows);
+  }
 
   function handleDelete() {
     if (window.confirm(`Delete scenario "${scenario.name}"? This cannot be undone.`)) {
@@ -87,7 +105,7 @@ function ScenarioDetailContent() {
     <div className="min-h-screen">
       <AppHeader title={scenario.name} />
       <main className="mx-auto max-w-4xl px-4 py-8 space-y-6">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 print:hidden">
           <Link
             href="/dashboard"
             className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
@@ -105,6 +123,18 @@ function ScenarioDetailContent() {
             className="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
           >
             Delete
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Print / Save as PDF
           </button>
         </div>
 
@@ -164,9 +194,33 @@ function ScenarioDetailContent() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Monte Carlo simulation
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            {monteCarlo.trials} randomized trials of annual returns (mean {scenario.annualReturnRatePercent}%,
+            std dev {scenario.returnVolatilityPercent ?? 15}%) — nominal balance at retirement.
+          </p>
+          <dl className="mt-3 grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <dt className="text-slate-500">Pessimistic (p10)</dt>
+              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p10)}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Median (p50)</dt>
+              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p50)}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Optimistic (p90)</dt>
+              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p90)}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Accumulation phase
           </h2>
-          <div className="mt-3 max-h-80 overflow-y-auto">
+          <div className="mt-3 max-h-80 overflow-y-auto print:max-h-none print:overflow-visible">
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 bg-white text-slate-500">
                 <tr>
@@ -198,12 +252,14 @@ function ScenarioDetailContent() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Withdrawal phase
           </h2>
-          <div className="mt-3 max-h-80 overflow-y-auto">
+          <div className="mt-3 max-h-80 overflow-y-auto print:max-h-none print:overflow-visible">
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 bg-white text-slate-500">
                 <tr>
                   <th className="py-1 pr-2">Age</th>
                   <th className="py-1 pr-2">Withdrawn</th>
+                  <th className="py-1 pr-2">Social Security</th>
+                  <th className="py-1 pr-2">Taxes paid</th>
                   <th className="py-1">End balance{showReal ? " (real)" : ""}</th>
                 </tr>
               </thead>
@@ -212,6 +268,8 @@ function ScenarioDetailContent() {
                   <tr key={r.year} className="border-t border-slate-100">
                     <td className="py-1 pr-2">{r.age}</td>
                     <td className="py-1 pr-2">{formatCurrency(r.withdrawals)}</td>
+                    <td className="py-1 pr-2">{formatCurrency(r.socialSecurityReceived)}</td>
+                    <td className="py-1 pr-2">{formatCurrency(r.taxesPaid)}</td>
                     <td className={`py-1 font-medium ${r.endBalance <= 0 ? "text-red-600" : ""}`}>
                       {formatCurrency(showReal ? r.endBalanceReal : r.endBalance)}
                     </td>

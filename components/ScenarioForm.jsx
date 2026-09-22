@@ -18,6 +18,10 @@ const DEFAULTS = {
   employerMatchRatePercent: 0,
   employerMatchCapMonthly: 0,
   contributionStepUpRatePercent: 0,
+  returnVolatilityPercent: 15,
+  taxTreatment: "none",
+  taxRatePercent: 15,
+  socialSecurityMonthly: 0,
 };
 
 function NumberField({ label, name, value, onChange, min = 0, step = "any", suffix }) {
@@ -99,6 +103,16 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
           <NumberField label="Monthly contribution" name="monthlyContribution" value={form.monthlyContribution} onChange={set} suffix="$" />
           <NumberField label="Expected annual return" name="annualReturnRatePercent" value={form.annualReturnRatePercent} onChange={set} suffix="%" />
           <NumberField label="Inflation rate" name="inflationRatePercent" value={form.inflationRatePercent} onChange={set} suffix="%" />
+          <div>
+            <NumberField
+              label="Return volatility"
+              name="returnVolatilityPercent"
+              value={form.returnVolatilityPercent}
+              onChange={set}
+              suffix="% std dev"
+            />
+            <p className="mt-1 text-xs text-slate-400">Used for the Monte Carlo simulation</p>
+          </div>
         </div>
       </section>
 
@@ -186,6 +200,57 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
                 onChange={set}
                 suffix="$"
               />
+            )}
+            <NumberField
+              label="Social Security / pension income"
+              name="socialSecurityMonthly"
+              value={form.socialSecurityMonthly}
+              onChange={set}
+              suffix="$/mo"
+            />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-slate-700">Tax treatment</span>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="taxTreatment"
+                  checked={form.taxTreatment === "none"}
+                  onChange={() => set("taxTreatment", "none")}
+                />
+                None / already after-tax
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="taxTreatment"
+                  checked={form.taxTreatment === "roth"}
+                  onChange={() => set("taxTreatment", "roth")}
+                />
+                Roth (tax-free withdrawals)
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="taxTreatment"
+                  checked={form.taxTreatment === "traditional"}
+                  onChange={() => set("taxTreatment", "traditional")}
+                />
+                Traditional (taxed on withdrawal)
+              </label>
+            </div>
+            {form.taxTreatment === "traditional" && (
+              <div className="mt-3 max-w-xs">
+                <NumberField
+                  label="Tax rate at withdrawal"
+                  name="taxRatePercent"
+                  value={form.taxRatePercent}
+                  onChange={set}
+                  suffix="%"
+                />
+              </div>
             )}
           </div>
         </div>

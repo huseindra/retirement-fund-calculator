@@ -23,6 +23,9 @@ export default function AppHeader({ title }) {
           {title && <p className="text-sm text-slate-500">{title}</p>}
         </div>
         <div className="flex items-center gap-4 text-sm">
+          <Link href="/settings" className="text-slate-500 hover:text-slate-700">
+            Settings
+          </Link>
           {session && <span className="text-slate-500">{session.username}</span>}
           <button
             onClick={handleLogout}
