@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import AppHeader from "@/components/AppHeader";
+import Card from "@/components/Card";
 import ScenarioForm from "@/components/ScenarioForm";
 import { getScenario, updateScenario } from "@/lib/storage";
 
@@ -24,20 +25,20 @@ function EditScenarioContent() {
   }
 
   if (scenario === undefined) {
-    return <p className="p-8 text-sm text-slate-500">Loading...</p>;
+    return <p className="p-8 text-sm text-muted">Loading...</p>;
   }
 
   if (scenario === null) {
-    return <p className="p-8 text-sm text-slate-500">Scenario not found.</p>;
+    return <p className="p-8 text-sm text-muted">Scenario not found.</p>;
   }
 
   return (
     <div className="min-h-screen">
       <AppHeader title={`Edit "${scenario.name}"`} />
       <main className="mx-auto max-w-2xl px-4 py-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <Card className="animate-fade-up">
           <ScenarioForm initialData={scenario} onSubmit={handleSubmit} submitLabel="Save changes" />
-        </div>
+        </Card>
       </main>
     </div>
   );

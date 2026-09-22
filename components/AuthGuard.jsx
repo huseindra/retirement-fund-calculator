@@ -20,7 +20,7 @@ export default function AuthGuard({ children }) {
 
   if (!checked) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center text-sm text-slate-500">
+      <div className="flex min-h-[50vh] items-center justify-center text-sm text-muted">
         Checking session...
       </div>
     );

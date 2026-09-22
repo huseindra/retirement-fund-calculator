@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { buttonClass, inputClass } from "@/lib/ui";
 
 const DEFAULTS = {
   name: "",
@@ -27,7 +28,7 @@ const DEFAULTS = {
 function NumberField({ label, name, value, onChange, min = 0, step = "any", suffix }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700" htmlFor={name}>
+      <label className="block text-sm font-medium text-ink" htmlFor={name}>
         {label}
       </label>
       <div className="relative mt-1">
@@ -39,11 +40,11 @@ function NumberField({ label, name, value, onChange, min = 0, step = "any", suff
           step={step}
           value={value}
           onChange={(e) => onChange(name, e.target.valueAsNumber)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+          className={`tabular-nums ${inputClass}`}
           required
         />
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-2 text-xs text-slate-400">
+          <span className="pointer-events-none absolute right-3 top-2 text-xs text-muted">
             {suffix}
           </span>
         )}
@@ -77,7 +78,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div>
-        <label className="block text-sm font-medium text-slate-700" htmlFor="name">
+        <label className="block text-sm font-medium text-ink" htmlFor="name">
           Scenario name
         </label>
         <input
@@ -87,13 +88,13 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
           placeholder="e.g. Base case"
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+          className={`mt-1 ${inputClass}`}
           required
         />
       </div>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
           Savings &amp; growth
         </h3>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -111,13 +112,13 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
               onChange={set}
               suffix="% std dev"
             />
-            <p className="mt-1 text-xs text-slate-400">Used for the Monte Carlo simulation</p>
+            <p className="mt-1 text-xs text-muted">Used for the Monte Carlo simulation</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
           Employer match &amp; raises
         </h3>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -136,7 +137,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
               onChange={set}
               suffix="$/mo"
             />
-            <p className="mt-1 text-xs text-slate-400">0 = no cap</p>
+            <p className="mt-1 text-xs text-muted">0 = no cap</p>
           </div>
           <NumberField
             label="Annual contribution increase"
@@ -149,7 +150,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
           Retirement goal
         </h3>
         <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -159,7 +160,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
           Withdrawal phase
         </h3>
         <div className="mt-3 space-y-4">
@@ -167,6 +168,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
             <label className="flex items-center gap-2">
               <input
                 type="radio"
+                className="accent-accent"
                 name="withdrawalMode"
                 checked={form.withdrawalMode === "percentRule"}
                 onChange={() => set("withdrawalMode", "percentRule")}
@@ -176,6 +178,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
             <label className="flex items-center gap-2">
               <input
                 type="radio"
+                className="accent-accent"
                 name="withdrawalMode"
                 checked={form.withdrawalMode === "fixed"}
                 onChange={() => set("withdrawalMode", "fixed")}
@@ -211,11 +214,12 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
           </div>
 
           <div>
-            <span className="block text-sm font-medium text-slate-700">Tax treatment</span>
+            <span className="block text-sm font-medium text-ink">Tax treatment</span>
             <div className="mt-2 flex flex-wrap gap-4 text-sm">
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
+                className="accent-accent"
                   name="taxTreatment"
                   checked={form.taxTreatment === "none"}
                   onChange={() => set("taxTreatment", "none")}
@@ -225,6 +229,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
+                className="accent-accent"
                   name="taxTreatment"
                   checked={form.taxTreatment === "roth"}
                   onChange={() => set("taxTreatment", "roth")}
@@ -234,6 +239,7 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
+                className="accent-accent"
                   name="taxTreatment"
                   checked={form.taxTreatment === "traditional"}
                   onChange={() => set("taxTreatment", "traditional")}
@@ -256,12 +262,9 @@ export default function ScenarioForm({ initialData, onSubmit, submitLabel = "Sav
         </div>
       </section>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-negative">{error}</p>}
 
-      <button
-        type="submit"
-        className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-      >
+      <button type="submit" className={buttonClass("primary")}>
         {submitLabel}
       </button>
     </form>

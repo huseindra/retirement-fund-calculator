@@ -4,10 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "@/components/AuthGuard";
 import AppHeader from "@/components/AppHeader";
+import Card from "@/components/Card";
+import Badge from "@/components/Badge";
 import ComparisonChart from "@/components/ComparisonChart";
 import { getScenarios } from "@/lib/storage";
 import { calculateAccumulation, checkGoal } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
+
+const SECTION_LABEL = "text-xs font-medium uppercase tracking-wide text-muted";
 
 function CompareContent() {
   const [scenarios, setScenarios] = useState([]);
@@ -50,25 +54,24 @@ function CompareContent() {
     <div className="min-h-screen">
       <AppHeader title="Compare scenarios" />
       <main className="mx-auto max-w-4xl px-4 py-8 space-y-6">
-        <Link href="/dashboard" className="text-sm text-slate-700 underline">
+        <Link href="/dashboard" className="text-sm text-ink underline">
           &larr; Back to dashboard
         </Link>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Select scenarios
-          </h2>
+        <Card className="animate-fade-up">
+          <h2 className={SECTION_LABEL}>Select scenarios</h2>
           {scenarios.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-500">No scenarios saved yet.</p>
+            <p className="mt-3 text-sm text-muted">No scenarios saved yet.</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {scenarios.map((s) => (
                 <li key={s.id}>
-                  <label className="flex items-center gap-2 text-sm">
+                  <label className="flex items-center gap-2 text-sm text-ink">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(s.id)}
                       onChange={() => toggle(s.id)}
+                      className="accent-accent"
                     />
                     {s.name}
                   </label>
@@ -76,25 +79,21 @@ function CompareContent() {
               ))}
             </ul>
           )}
-        </section>
+        </Card>
 
         {results.length >= 1 && (
           <>
-            <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Balance over time
-              </h2>
+            <Card className="animate-fade-up">
+              <h2 className={SECTION_LABEL}>Balance over time</h2>
               <div className="mt-3">
                 <ComparisonChart series={chartSeries} />
               </div>
-            </section>
+            </Card>
 
-            <section className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Side-by-side
-              </h2>
+            <Card className="animate-fade-up overflow-x-auto">
+              <h2 className={SECTION_LABEL}>Side-by-side</h2>
               <table className="mt-3 w-full text-left text-sm">
-                <thead className="text-slate-500">
+                <thead className="text-muted">
                   <tr>
                     <th className="py-1 pr-4">Scenario</th>
                     <th className="py-1 pr-4">Nominal at retirement</th>
@@ -105,19 +104,21 @@ function CompareContent() {
                 </thead>
                 <tbody>
                   {results.map(({ scenario, accumulation, goal }) => (
-                    <tr key={scenario.id} className="border-t border-slate-100">
-                      <td className="py-1 pr-4 font-medium">{scenario.name}</td>
-                      <td className="py-1 pr-4">{formatCurrency(accumulation.nominalAtRetirement)}</td>
-                      <td className="py-1 pr-4">{formatCurrency(accumulation.realAtRetirement)}</td>
-                      <td className="py-1 pr-4">{formatCurrency(scenario.targetAmount)}</td>
-                      <td className={`py-1 ${goal.isOnTrack ? "text-green-700" : "text-amber-700"}`}>
-                        {goal.isOnTrack ? "On track" : "Shortfall"}
+                    <tr key={scenario.id} className="border-t border-border">
+                      <td className="py-1 pr-4 font-medium text-ink">{scenario.name}</td>
+                      <td className="py-1 pr-4 tabular-nums">{formatCurrency(accumulation.nominalAtRetirement)}</td>
+                      <td className="py-1 pr-4 tabular-nums">{formatCurrency(accumulation.realAtRetirement)}</td>
+                      <td className="py-1 pr-4 tabular-nums">{formatCurrency(scenario.targetAmount)}</td>
+                      <td className="py-1">
+                        <Badge tone={goal.isOnTrack ? "positive" : "negative"}>
+                          {goal.isOnTrack ? "On track" : "Shortfall"}
+                        </Badge>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </section>
+            </Card>
           </>
         )}
       </main>

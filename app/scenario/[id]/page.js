@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import AuthGuard from "@/components/AuthGuard";
 import AppHeader from "@/components/AppHeader";
+import Card from "@/components/Card";
+import Badge from "@/components/Badge";
 import { getScenario, deleteScenario } from "@/lib/storage";
 import {
   calculateAccumulation,
@@ -14,27 +16,30 @@ import {
 } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
 import { downloadScenarioCSV } from "@/lib/export";
+import { buttonClass } from "@/lib/ui";
 import GrowthChart from "@/components/GrowthChart";
 
 function GoalBanner({ goal, projected }) {
   const result = checkGoal({ targetAmount: goal, projectedAmount: projected });
   return (
-    <div
-      className={`rounded-lg border p-4 ${
-        result.isOnTrack ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"
-      }`}
-    >
-      <p className={`font-medium ${result.isOnTrack ? "text-green-800" : "text-amber-800"}`}>
-        {result.isOnTrack ? "On track to meet your goal" : "Projected to fall short of your goal"}
+    <Card className="animate-fade-up flex items-center justify-between gap-4 p-5 sm:p-5">
+      <p className="text-sm text-muted">
+        Projected at retirement: <span className="tabular-nums text-ink">{formatCurrency(projected)}</span>{" "}
+        vs. target <span className="tabular-nums text-ink">{formatCurrency(goal)}</span> (
+        <span className="tabular-nums">
+          {result.surplus >= 0 ? "+" : ""}
+          {formatCurrency(result.surplus)}
+        </span>
+        )
       </p>
-      <p className="mt-1 text-sm text-slate-600">
-        Projected at retirement: {formatCurrency(projected)} vs. target {formatCurrency(goal)} (
-        {result.surplus >= 0 ? "+" : ""}
-        {formatCurrency(result.surplus)})
-      </p>
-    </div>
+      <Badge tone={result.isOnTrack ? "positive" : "negative"}>
+        {result.isOnTrack ? "On track" : "Shortfall"}
+      </Badge>
+    </Card>
   );
 }
+
+const SECTION_LABEL = "text-xs font-medium uppercase tracking-wide text-muted";
 
 function ScenarioDetailContent() {
   const { id } = useParams();
@@ -87,14 +92,14 @@ function ScenarioDetailContent() {
   }
 
   if (scenario === undefined) {
-    return <p className="p-8 text-sm text-slate-500">Loading...</p>;
+    return <p className="p-8 text-sm text-muted">Loading...</p>;
   }
 
   if (scenario === null) {
     return (
       <div className="p-8">
-        <p className="text-sm text-slate-500">Scenario not found.</p>
-        <Link href="/dashboard" className="text-sm text-slate-900 underline">
+        <p className="text-sm text-muted">Scenario not found.</p>
+        <Link href="/dashboard" className="text-sm text-ink underline">
           Back to dashboard
         </Link>
       </div>
@@ -106,34 +111,19 @@ function ScenarioDetailContent() {
       <AppHeader title={scenario.name} />
       <main className="mx-auto max-w-4xl px-4 py-8 space-y-6">
         <div className="flex flex-wrap gap-2 print:hidden">
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
+          <Link href="/dashboard" className={buttonClass("secondary")}>
             &larr; Back
           </Link>
-          <Link
-            href={`/scenario/${id}/edit`}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
+          <Link href={`/scenario/${id}/edit`} className={buttonClass("secondary")}>
             Edit
           </Link>
-          <button
-            onClick={handleDelete}
-            className="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
-          >
+          <button onClick={handleDelete} className={buttonClass("destructive")}>
             Delete
           </button>
-          <button
-            onClick={handleExportCSV}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
+          <button onClick={handleExportCSV} className={buttonClass("secondary")}>
             Export CSV
           </button>
-          <button
-            onClick={() => window.print()}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
+          <button onClick={() => window.print()} className={buttonClass("secondary")}>
             Print / Save as PDF
           </button>
         </div>
@@ -143,46 +133,45 @@ function ScenarioDetailContent() {
           projected={showReal ? accumulation.realAtRetirement : accumulation.nominalAtRetirement}
         />
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <Card className="animate-fade-up">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Summary</h2>
-            <label className="flex items-center gap-2 text-xs text-slate-600">
+            <h2 className={SECTION_LABEL}>Summary</h2>
+            <label className="flex items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={showReal}
                 onChange={(e) => setShowReal(e.target.checked)}
+                className="accent-accent"
               />
               Show inflation-adjusted (real) values
             </label>
           </div>
           <dl className="mt-3 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
             <div>
-              <dt className="text-slate-500">Nominal at retirement</dt>
-              <dd className="font-medium text-slate-900">{formatCurrency(accumulation.nominalAtRetirement)}</dd>
+              <dt className="text-muted">Nominal at retirement</dt>
+              <dd className="tabular-nums font-medium text-ink">{formatCurrency(accumulation.nominalAtRetirement)}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Real (today&apos;s $)</dt>
-              <dd className="font-medium text-slate-900">{formatCurrency(accumulation.realAtRetirement)}</dd>
+              <dt className="text-muted">Real (today&apos;s $)</dt>
+              <dd className="tabular-nums font-medium text-ink">{formatCurrency(accumulation.realAtRetirement)}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Years to retirement</dt>
-              <dd className="font-medium text-slate-900">{scenario.retirementAge - scenario.currentAge}</dd>
+              <dt className="text-muted">Years to retirement</dt>
+              <dd className="tabular-nums font-medium text-ink">{scenario.retirementAge - scenario.currentAge}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Funds last until</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-muted">Funds last until</dt>
+              <dd className="tabular-nums font-medium text-ink">
                 {withdrawal.lastsThroughLifeExpectancy
                   ? `Age ${scenario.lifeExpectancyAge}+`
                   : `Age ${withdrawal.depletedAtAge}`}
               </dd>
             </div>
           </dl>
-        </section>
+        </Card>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Growth over time
-          </h2>
+        <Card className="animate-fade-up">
+          <h2 className={SECTION_LABEL}>Growth over time</h2>
           <div className="mt-3">
             <GrowthChart
               rows={accumulation.rows}
@@ -190,39 +179,35 @@ function ScenarioDetailContent() {
               currentSavings={scenario.currentSavings}
             />
           </div>
-        </section>
+        </Card>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Monte Carlo simulation
-          </h2>
-          <p className="mt-1 text-xs text-slate-500">
+        <Card className="animate-fade-up">
+          <h2 className={SECTION_LABEL}>Monte Carlo simulation</h2>
+          <p className="mt-1 text-xs text-muted">
             {monteCarlo.trials} randomized trials of annual returns (mean {scenario.annualReturnRatePercent}%,
             std dev {scenario.returnVolatilityPercent ?? 15}%) — nominal balance at retirement.
           </p>
           <dl className="mt-3 grid grid-cols-3 gap-4 text-sm">
             <div>
-              <dt className="text-slate-500">Pessimistic (p10)</dt>
-              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p10)}</dd>
+              <dt className="text-muted">Pessimistic (p10)</dt>
+              <dd className="tabular-nums font-medium text-ink">{formatCurrency(monteCarlo.p10)}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Median (p50)</dt>
-              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p50)}</dd>
+              <dt className="text-muted">Median (p50)</dt>
+              <dd className="tabular-nums font-medium text-ink">{formatCurrency(monteCarlo.p50)}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Optimistic (p90)</dt>
-              <dd className="font-medium text-slate-900">{formatCurrency(monteCarlo.p90)}</dd>
+              <dt className="text-muted">Optimistic (p90)</dt>
+              <dd className="tabular-nums font-medium text-ink">{formatCurrency(monteCarlo.p90)}</dd>
             </div>
           </dl>
-        </section>
+        </Card>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Accumulation phase
-          </h2>
+        <Card className="animate-fade-up">
+          <h2 className={SECTION_LABEL}>Accumulation phase</h2>
           <div className="mt-3 max-h-80 overflow-y-auto print:max-h-none print:overflow-visible">
             <table className="w-full text-left text-sm">
-              <thead className="sticky top-0 bg-white text-slate-500">
+              <thead className="sticky top-0 bg-surface text-muted">
                 <tr>
                   <th className="py-1 pr-2">Age</th>
                   <th className="py-1 pr-2">Contributions</th>
@@ -233,12 +218,12 @@ function ScenarioDetailContent() {
               </thead>
               <tbody>
                 {accumulation.rows.map((r) => (
-                  <tr key={r.year} className="border-t border-slate-100">
-                    <td className="py-1 pr-2">{r.age}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.contributions)}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.employerMatch)}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.growth)}</td>
-                    <td className="py-1 font-medium">
+                  <tr key={r.year} className="border-t border-border">
+                    <td className="py-1 pr-2 tabular-nums">{r.age}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.contributions)}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.employerMatch)}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.growth)}</td>
+                    <td className="py-1 tabular-nums font-medium text-ink">
                       {formatCurrency(showReal ? r.endBalanceReal : r.endBalance)}
                     </td>
                   </tr>
@@ -246,15 +231,13 @@ function ScenarioDetailContent() {
               </tbody>
             </table>
           </div>
-        </section>
+        </Card>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Withdrawal phase
-          </h2>
+        <Card className="animate-fade-up">
+          <h2 className={SECTION_LABEL}>Withdrawal phase</h2>
           <div className="mt-3 max-h-80 overflow-y-auto print:max-h-none print:overflow-visible">
             <table className="w-full text-left text-sm">
-              <thead className="sticky top-0 bg-white text-slate-500">
+              <thead className="sticky top-0 bg-surface text-muted">
                 <tr>
                   <th className="py-1 pr-2">Age</th>
                   <th className="py-1 pr-2">Withdrawn</th>
@@ -265,12 +248,12 @@ function ScenarioDetailContent() {
               </thead>
               <tbody>
                 {withdrawal.rows.map((r) => (
-                  <tr key={r.year} className="border-t border-slate-100">
-                    <td className="py-1 pr-2">{r.age}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.withdrawals)}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.socialSecurityReceived)}</td>
-                    <td className="py-1 pr-2">{formatCurrency(r.taxesPaid)}</td>
-                    <td className={`py-1 font-medium ${r.endBalance <= 0 ? "text-red-600" : ""}`}>
+                  <tr key={r.year} className="border-t border-border">
+                    <td className="py-1 pr-2 tabular-nums">{r.age}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.withdrawals)}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.socialSecurityReceived)}</td>
+                    <td className="py-1 pr-2 tabular-nums">{formatCurrency(r.taxesPaid)}</td>
+                    <td className={`py-1 tabular-nums font-medium ${r.endBalance <= 0 ? "text-negative" : "text-ink"}`}>
                       {formatCurrency(showReal ? r.endBalanceReal : r.endBalance)}
                     </td>
                   </tr>
@@ -278,7 +261,7 @@ function ScenarioDetailContent() {
               </tbody>
             </table>
           </div>
-        </section>
+        </Card>
       </main>
     </div>
   );

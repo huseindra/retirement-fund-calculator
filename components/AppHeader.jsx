@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logout, getSession } from "@/lib/auth";
+import { buttonClass } from "@/lib/ui";
 
 export default function AppHeader({ title }) {
   const router = useRouter();
@@ -14,23 +15,20 @@ export default function AppHeader({ title }) {
   }
 
   return (
-    <header className="print:hidden border-b border-slate-200 bg-white">
+    <header className="print:hidden border-b border-border bg-surface">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
         <div>
-          <Link href="/dashboard" className="text-lg font-semibold text-slate-900">
+          <Link href="/dashboard" className="font-serif text-lg italic text-ink">
             Retirement Fund Calculator
           </Link>
-          {title && <p className="text-sm text-slate-500">{title}</p>}
+          {title && <p className="text-sm text-muted">{title}</p>}
         </div>
         <div className="flex items-center gap-4 text-sm">
-          <Link href="/settings" className="text-slate-500 hover:text-slate-700">
+          <Link href="/settings" className="text-muted hover:text-ink">
             Settings
           </Link>
-          {session && <span className="text-slate-500">{session.username}</span>}
-          <button
-            onClick={handleLogout}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-          >
+          {session && <span className="text-muted">{session.username}</span>}
+          <button onClick={handleLogout} className={buttonClass("secondary")}>
             Log out
           </button>
         </div>

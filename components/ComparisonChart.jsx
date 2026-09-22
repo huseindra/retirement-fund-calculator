@@ -3,7 +3,9 @@
 const WIDTH = 640;
 const HEIGHT = 280;
 const PAD = { top: 16, right: 16, bottom: 28, left: 64 };
-const COLORS = ["#0f172a", "#2563eb", "#dc2626", "#16a34a", "#d97706", "#7c3aed"];
+// Desaturated categorical set (distinct scenarios need distinguishable lines;
+// kept muted to stay consistent with the warm-monochrome palette).
+const COLORS = ["#171412", "#1f3d2b", "#9a4b3f", "#4a6b8a", "#a3812f", "#6b5b7b"];
 
 export default function ComparisonChart({ series }) {
   // series: [{ name, points: [{age, value}] }]
@@ -32,7 +34,7 @@ export default function ComparisonChart({ series }) {
             x2={WIDTH - PAD.right}
             y1={yScale(v)}
             y2={yScale(v)}
-            stroke="#e2e8f0"
+            stroke="#eaeaea"
             strokeWidth="1"
           />
         ))}
@@ -52,14 +54,14 @@ export default function ComparisonChart({ series }) {
             y={HEIGHT - PAD.bottom + 16}
             textAnchor="middle"
             fontSize="10"
-            fill="#64748b"
+            fill="#787774"
           >
             Age {age}
           </text>
         ))}
       </svg>
 
-      <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
+      <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
         {series.map((s, i) => (
           <span key={s.name} className="flex items-center gap-1.5">
             <span

@@ -6,10 +6,11 @@ const WIDTH = 640;
 const HEIGHT = 280;
 const PAD = { top: 16, right: 16, bottom: 28, left: 64 };
 
+// Mirrors the warm-monochrome + single-accent tokens in globals.css.
 const SERIES = [
-  { key: "principal", label: "Your contributions", color: "#0f172a" },
-  { key: "employerMatch", label: "Employer match", color: "#38bdf8" },
-  { key: "growth", label: "Investment growth", color: "#22c55e" },
+  { key: "principal", label: "Your contributions", color: "#171412" },
+  { key: "employerMatch", label: "Employer match", color: "#a39c8f" },
+  { key: "growth", label: "Investment growth", color: "#1f3d2b" },
 ];
 
 function buildBandPath(points, xScale, yScale, lowerKey, upperKey) {
@@ -75,17 +76,17 @@ export default function GrowthChart({ rows, currentAge, currentSavings }) {
               x2={WIDTH - PAD.right}
               y1={yScale(v)}
               y2={yScale(v)}
-              stroke="#e2e8f0"
+              stroke="#eaeaea"
               strokeWidth="1"
             />
-            <text x={PAD.left - 8} y={yScale(v) + 4} textAnchor="end" fontSize="10" fill="#64748b">
+            <text x={PAD.left - 8} y={yScale(v) + 4} textAnchor="end" fontSize="10" fill="#787774">
               {formatCurrency(v)}
             </text>
           </g>
         ))}
 
         {bands.map((band) => (
-          <path key={band.key} d={band.path} fill={band.color} fillOpacity="0.85" />
+          <path key={band.key} d={band.path} fill={band.color} fillOpacity="0.9" />
         ))}
 
         {[minAge, Math.round((minAge + maxAge) / 2), maxAge].map((age) => (
@@ -95,14 +96,14 @@ export default function GrowthChart({ rows, currentAge, currentSavings }) {
             y={HEIGHT - PAD.bottom + 16}
             textAnchor="middle"
             fontSize="10"
-            fill="#64748b"
+            fill="#787774"
           >
             Age {age}
           </text>
         ))}
       </svg>
 
-      <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
+      <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted">
         {SERIES.map((s) => (
           <span key={s.key} className="flex items-center gap-1.5">
             <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: s.color }} />

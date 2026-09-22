@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "@/components/AuthGuard";
 import AppHeader from "@/components/AppHeader";
+import Card from "@/components/Card";
 import { getScenarios, deleteScenario } from "@/lib/storage";
 import { formatCurrency } from "@/lib/format";
+import { buttonClass } from "@/lib/ui";
 
 function DashboardContent() {
   const [scenarios, setScenarios] = useState([]);
@@ -28,71 +30,56 @@ function DashboardContent() {
       <AppHeader title="Your saved scenarios" />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Scenarios</h2>
+          <h2 className="font-serif text-2xl italic text-ink">Scenarios</h2>
           <div className="flex gap-2">
             {scenarios.length > 1 && (
-              <Link
-                href="/compare"
-                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
+              <Link href="/compare" className={buttonClass("secondary")}>
                 Compare
               </Link>
             )}
-            <Link
-              href="/scenario/new"
-              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-            >
+            <Link href="/scenario/new" className={buttonClass("primary")}>
               + New scenario
             </Link>
           </div>
         </div>
 
         {scenarios.length === 0 ? (
-          <div className="mt-8 rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+          <div className="mt-8 rounded-xl border border-dashed border-border bg-surface p-10 text-center text-sm text-muted">
             No scenarios yet. Create your first retirement scenario to see projections.
           </div>
         ) : (
           <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {scenarios.map((s) => (
-              <li
-                key={s.id}
-                className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
-              >
+              <Card as="li" key={s.id} className="animate-fade-up">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-slate-900">{s.name}</h3>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <h3 className="font-medium text-ink">{s.name}</h3>
+                    <p className="mt-1 text-xs text-muted">
                       Age {s.currentAge} &rarr; {s.retirementAge}
                     </p>
                   </div>
                 </div>
-                <p className="mt-3 text-sm text-slate-600">
+                <p className="mt-3 text-sm tabular-nums text-muted">
                   Current savings: {formatCurrency(s.currentSavings)}
                 </p>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm tabular-nums text-muted">
                   Monthly contribution: {formatCurrency(s.monthlyContribution)}
                 </p>
                 <div className="mt-4 flex gap-2 text-sm">
-                  <Link
-                    href={`/scenario/${s.id}`}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-                  >
+                  <Link href={`/scenario/${s.id}`} className={buttonClass("secondary")}>
                     View
                   </Link>
-                  <Link
-                    href={`/scenario/${s.id}/edit`}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50"
-                  >
+                  <Link href={`/scenario/${s.id}/edit`} className={buttonClass("secondary")}>
                     Edit
                   </Link>
                   <button
                     onClick={() => handleDelete(s.id, s.name)}
-                    className="rounded-md border border-red-200 px-3 py-1.5 text-red-600 hover:bg-red-50"
+                    className={buttonClass("destructive")}
                   >
                     Delete
                   </button>
                 </div>
-              </li>
+              </Card>
             ))}
           </ul>
         )}

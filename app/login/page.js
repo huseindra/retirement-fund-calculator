@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { login, isAuthenticated } from "@/lib/auth";
+import Card from "@/components/Card";
+import { buttonClass, inputClass } from "@/lib/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,14 +28,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Retirement Fund Calculator</h1>
-        <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
+      <Card className="animate-fade-up w-full max-w-sm">
+        <h1 className="font-serif text-2xl italic text-ink">Retirement Fund Calculator</h1>
+        <p className="mt-1 text-sm text-muted">Sign in to continue</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="username">
+            <label className="block text-sm font-medium text-ink" htmlFor="username">
               Username
             </label>
             <input
@@ -42,12 +44,12 @@ export default function LoginPage() {
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className={`mt-1 ${inputClass}`}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="password">
+            <label className="block text-sm font-medium text-ink" htmlFor="password">
               Password
             </label>
             <input
@@ -56,26 +58,23 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+              className={`mt-1 ${inputClass}`}
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-negative">{error}</p>}
 
-          <button
-            type="submit"
-            className="w-full rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
-          >
+          <button type="submit" className={buttonClass("primary", "w-full")}>
             Sign in
           </button>
         </form>
 
-        <p className="mt-6 rounded-md bg-slate-50 p-3 text-xs text-slate-500">
+        <p className="mt-6 rounded-md border border-border bg-canvas p-3 text-xs text-muted">
           Demo credentials — username: <code className="font-mono">admin</code>, password:{" "}
           <code className="font-mono">retire2026</code>
         </p>
-      </div>
+      </Card>
     </div>
   );
 }
